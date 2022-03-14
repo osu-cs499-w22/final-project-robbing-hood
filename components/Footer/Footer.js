@@ -5,7 +5,7 @@ import { Heading } from "@chakra-ui/react";
 
 const Box = styled.div`
   padding: 80px 60px;
-  background: black;
+  background: #1A202C;
   bottom: 0;
   width: 100%;
   margin-top:auto;
@@ -48,7 +48,7 @@ const FooterLink = styled.a`
   text-decoration: none;
 
   &:hover {
-    color: green;
+    color: #81E6D9;
     transition: 200ms ease-in;
     cursor: pointer;
   }
@@ -64,52 +64,29 @@ const HeadingP = styled.p`
 function Footer() {
   return (
     <Box>
-      <Heading style={{ color: "green", textAlign: "center", marginTop: "-50px" }}>
+      <Heading style={{ color: "teal", textAlign: "center", marginTop: "-50px" }}>
         Robbing Hood: Commission-free Stock Viewing App
       </Heading>
       <Container>
         <Row>
           <Column>
-            <HeadingP>About Us</HeadingP>
-            <Link href="#"><FooterLink>Aim</FooterLink></Link>
-            <Link href="#"><FooterLink>Vision</FooterLink></Link>
-            <Link href="#"><FooterLink>Testimonials</FooterLink></Link>
+            
           </Column>
           <Column>
             <HeadingP>Services</HeadingP>
-            <Link href="#"><FooterLink>Writing</FooterLink></Link>
-            <Link href="#"><FooterLink>Internships</FooterLink></Link>
-            <Link href="#"><FooterLink>Coding</FooterLink></Link>
-            <Link href="#"><FooterLink>Teaching</FooterLink></Link>
+            <Link href="/dashboard"><FooterLink>Home</FooterLink></Link>
+            <Link href="/search"><FooterLink>Search</FooterLink></Link>
+            <Link href="/news"><FooterLink>News</FooterLink></Link>
+            <Link href="/aboutus"><FooterLink>About Us</FooterLink></Link>
           </Column>
           <Column>
             <HeadingP>Contact Us</HeadingP>
-            <Link href="#"><FooterLink>Khai Phan</FooterLink></Link>
-            <Link href="#"><FooterLink>Scot Rein</FooterLink></Link>
-            <Link href="#"><FooterLink>Nelson Van der Lindt</FooterLink></Link>
+            <FooterLink href="mailto:phankha@oregonstate.edu">Khai Phan</FooterLink>
+            <FooterLink href="mailto:reins@oregonstate.edu">Scot Rein</FooterLink>
+            <FooterLink href="mailto:vandelin@oregonstate.edu">Nelson van de Lindt</FooterLink>
           </Column>
           <Column>
-            <HeadingP>Social Media</HeadingP>
-            <Link href="#"><FooterLink>
-              <i className="fab fa-facebook-f">
-                <span style={{ marginLeft: "10px" }}>Facebook</span>
-              </i>
-            </FooterLink></Link>
-            <Link href="#"><FooterLink>
-              <i className="fab fa-instagram">
-                <span style={{ marginLeft: "10px" }}>Instagram</span>
-              </i>
-            </FooterLink></Link>
-            <Link href="#"><FooterLink>
-              <i className="fab fa-twitter">
-                <span style={{ marginLeft: "10px" }}>Twitter</span>
-              </i>
-            </FooterLink></Link>
-            <Link href="#"><FooterLink>
-              <i className="fab fa-youtube">
-                <span style={{ marginLeft: "10px" }}>Youtube</span>
-              </i>
-            </FooterLink></Link>
+            
           </Column>
         </Row>
       </Container>

@@ -9,6 +9,10 @@ const PageContainer = styled.div`
     min-height: 100vh;
 `;
 
+const SideContain = styled.div`
+    display: inline-block;
+    flex-direction: column;`;
+
 function Layout({ children }) {
   return (
     <PageContainer>
