@@ -388,6 +388,15 @@ export async function getServerSideProps(context) {
       projection: { _id: 0, watchlist: 1 }
   };
 
+  if (!session) {
+    return {
+      props: {
+        session: session,
+        userWatchlist: []
+      }
+    }
+  }
+
   const userWatchlist = await db.collection('watchlists').findOne({ email: session.user.email }, options);
 
   return {
