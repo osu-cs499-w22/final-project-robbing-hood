@@ -7,6 +7,7 @@ import { Icon } from '@chakra-ui/react';
 import { FaBars, FaTimes } from 'react-icons/fa';
 
 import styled from '@emotion/styled';
+import { useRouter } from 'next/router';
 
 //background color is equivalent to Chakra Blue 800
 const Nav = styled.nav`
@@ -144,6 +145,13 @@ function Navbar() {
 
     const [ menuClicked, setMenuClicked ] = useState(false);
 
+    const router = useRouter();
+
+    const handleClick = (e) => {
+        e.preventDefault()
+        router.push("/users/signup")
+    }
+
     return (
         <Nav>
             <NavBarLogo className='navbar-logo'>Robbing Hood</NavBarLogo>
@@ -163,7 +171,7 @@ function Navbar() {
                     )
                 })}
             </List>
-            <NavButton>Sign Up</NavButton>
+            <NavButton onClick={handleClick}>Sign Up</NavButton>
         </Nav>
     )
 }
