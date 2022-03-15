@@ -40,6 +40,9 @@ import { FaSearch, FaPlus } from 'react-icons/fa';
 import NextLink from 'next/link';
 import useStockQuote from '../hooks/useStockQuote';
 import useStockRecommendations from '../hooks/useStockRecommendations';
+import { useSession } from "next-auth/react";
+import { getSession } from "next-auth/react";
+import { connectToDatabase } from '../lib/db';
 
 import { parse, format } from 'date-fns';
 
@@ -47,22 +50,36 @@ const SearchDiv = styled.div`
     padding: 10px;
 `;
 
-function Search() {
+function Search({ userWatchlist }) {
 
-    const handleClick = (e) => {
-        e.preventDefault()
-        router.push("/users/signup")
-    }
+    const { data: session } = useSession();
 
     // https://stackoverflow.com/questions/61040790/userouter-withrouter-receive-undefined-on-query-in-first-render
     const router = useRouter();
     const query = router.query.q;
     const [ inputQuery, setInputQuery ] = useState(query || "");
+    const [ addedStocks, setAddedStocks ] = useState(userWatchlist || []);
 
     const { profile } = useStockProfile(query);
     const { peers } = useStockPeers(query);
     const { quote } = useStockQuote(query);
     const { recommendations } = useStockRecommendations(query);
+
+    const handleClick = async (ticker) => {
+        setAddedStocks([]);
+        const res = await fetch('/api/watchlistinsert', {
+            method: 'POST',
+            body: JSON.stringify({
+                ticker: ticker
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const resBody = await res.json();
+        console.log(resBody.value.watchlist);
+        setAddedStocks(resBody.value.watchlist);
+    }
 
     return (
         <Box p={15}
@@ -108,16 +125,19 @@ function Search() {
                 <Text>Currency: {profile.currency}</Text>
                 <Text>Industry: {profile.finnhubIndustry}</Text>
                 <Text>IPO: {profile.ipo}</Text>
+                {session &&
                 <Button
+                disabled={addedStocks.includes(query) ? true : false}
                 mt={4}
                 p={5}
                 color={'white'}
                 backgroundColor={'blue.400'}
                 _hover={{ backgroundColor: 'blue.600' }}
-                onClick={handleClick}
-              >
+                onClick={_ => handleClick(query)}
+                >
                 Add to Watchlist <Spacer pl={2}/><FaPlus/>
-              </Button>
+                </Button>
+                }
             </Box>
             }
             {quote && 
@@ -182,12 +202,12 @@ function Search() {
                         </Tr>
                     </Thead>
                     <Tbody>
-                        {recommendations.map(rec => {
+                        {recommendations.map((rec, index) => {
                             const date = parse(rec.period, "yyyy-MM-dd", new Date());
                             const finalDate = format(date, "MMMM yyyy");
 
                             return (
-                                <Tr>
+                                <Tr key={index}>
                                     <Td>{finalDate}</Td>
                                     <Td isNumeric>{rec.buy}</Td>
                                     <Td isNumeric>{rec.hold}</Td>
@@ -228,6 +248,37 @@ function Search() {
             }
         </Box>
     )
+}
+
+export async function getServerSideProps(context) {
+
+    const session = await getSession(context);
+
+    const client = await connectToDatabase();
+    const db = client.db();
+    const options = {
+        projection: { _id: 0, watchlist: 1 },
+    };
+
+    if (!session) {
+        return {
+            props: {
+                session: session,
+                userWatchlist: [],
+            },
+        };
+    }
+
+    const userWatchlist = await db
+        .collection("watchlists")
+        .findOne({ email: session.user.email }, options);
+
+    return {
+        props: {
+            session: session,
+            userWatchlist: JSON.parse(JSON.stringify(userWatchlist.watchlist)),
+        },
+    };
 }
 
 export default Search;

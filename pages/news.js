@@ -31,7 +31,6 @@ function News({ news }) {
       }
     });
     const resBody = await res.json();
-    console.log(resBody);
     setNewsPosts(resBody);
   }
 
