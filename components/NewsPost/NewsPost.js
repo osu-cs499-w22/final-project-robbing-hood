@@ -22,17 +22,18 @@ export default function NewsPost({ category, datetime, headline, image, related,
                 <LinkOverlay href={url} isExternal>
                     <Box
                         maxW={'445px'}
-                        w={'full'}
+                        w={'445px'}
+                        h={'600px'}
                         bg={useColorModeValue('white', 'gray.900')}
                         boxShadow={'2xl'}
                         rounded={'md'}
                         p={6}
                         overflow={'hidden'}>
                         <Box
-                        h={'210px'}
+                        h={'220px'}
+                        w={'full'}
                         bg={'gray.100'}
-                        mt={-6}
-                        mx={-6}
+                        mt={-2}
                         mb={6}
                         pos={'relative'}>
                         <Image

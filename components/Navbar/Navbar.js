@@ -4,13 +4,16 @@ import { MenuItems } from './MenuItems';
 import { NavButton } from './NavButton';
 import { Icon } from '@chakra-ui/react';
 
-import { FaBars, FaTimes } from 'react-icons/fa';
+import { FaBars, FaTimes} from 'react-icons/fa';
 
 import styled from '@emotion/styled';
+import { useRouter } from 'next/router';
 
+//background color is equivalent to Chakra Blue 800
 const Nav = styled.nav`
-    background-color: purple;
-    height: 80px;
+    background-color: #1A202C;
+    height: 70px;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -83,7 +86,7 @@ const NavLink = styled.a`
         transition: all 0.2s ease-out;
 
         @media (max-width: 960px) {
-            background-color: #7577fa;
+            background-color: #285E61;
             border-radius: 0;
         }
     }
@@ -106,7 +109,7 @@ const NavLink = styled.a`
 
         &:hover {
             background: #ffffff;
-            color: #6568f4;
+            color: #285E61;
             transition: 250ms;
         }
     }
@@ -142,6 +145,13 @@ function Navbar() {
 
     const [ menuClicked, setMenuClicked ] = useState(false);
 
+    const router = useRouter();
+
+    const handleClick = (e) => {
+        e.preventDefault()
+        router.push("/users/signup")
+    }
+
     return (
         <Nav>
             <NavBarLogo className='navbar-logo'>Robbing Hood</NavBarLogo>
@@ -161,7 +171,7 @@ function Navbar() {
                     )
                 })}
             </List>
-            <NavButton>Sign Up</NavButton>
+            <NavButton onClick={handleClick}>Sign Up</NavButton>
         </Nav>
     )
 }
