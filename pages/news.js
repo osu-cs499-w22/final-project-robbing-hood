@@ -37,7 +37,7 @@ function News({ news }) {
   return (
     <div>
       <Center>
-        <Box maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden' p='8px' my='8px'>
+        <Box maxW='md' borderWidth='1px' borderRadius='lg' overflow='hidden' p={6} my='8px' mt={6}>
           <FormControl>
             <FormLabel htmlFor='category'>News Category</FormLabel>
             <HStack>
@@ -53,10 +53,11 @@ function News({ news }) {
               </Select>
               <Button
                 mt={4}
+                p={5}
                 colorScheme='teal'
                 onClick={refreshNews}
               >
-                Refresh
+                View Articles
               </Button>
             </HStack>
             <FormHelperText>Select news category to display and then click refresh to see new results (General is default category).</FormHelperText>

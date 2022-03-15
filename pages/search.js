@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import {
+    Box,
     Text,
     FormControl,
     FormLabel,
@@ -58,7 +59,8 @@ function Search() {
     const { recommendations } = useStockRecommendations(query);
 
     return (
-        <SearchDiv>
+        <Box p={15}
+        >
             <form onSubmit={e => {
                 e.preventDefault();
                 router.push(`${router.pathname}?q=${inputQuery}`);
@@ -77,33 +79,51 @@ function Search() {
                     <FormHelperText>Ticker symbols or stock symbols are arrangements of symbols or characters representing specific assets or securities listed on a stock exchange or traded publicly (Ex. Apple = AAPL).</FormHelperText>
                 </FormControl>
             </form>
-            {profile && 
-            <div>
-                <Heading mt={4}>{profile.ticker}</Heading>
+            {profile && quote &&
+            <Box 
+            mt={6} 
+            mb={6} 
+            boxShadow={'base'}
+            rounded={'md'}
+            pl={10}
+            pt={1}
+            pb={5}
+            >
+                <Heading mt={4}>
+                    {profile.ticker} 
+                    <Box display={'inline-block'} color={quote.d > 0? 'green.400' : 'red.400'}>
+                        <Stat display={'inline-block'}><StatArrow type={quote.d > 0 ? 'increase' : 'decrease'} /></Stat>
+                        ({quote.dp}%)
+                    </Box>
+                    
+                </Heading>
                 <Heading size="md">{profile.name}</Heading>
                 <Text>Exchange: {profile.exchange}</Text>
                 <Text>Currency: {profile.currency}</Text>
                 <Text>Industry: {profile.finnhubIndustry}</Text>
                 <Text>IPO: {profile.ipo}</Text>
-            </div>
+            </Box>
             }
             {quote && 
-            <StatGroup>
+            <Box
+            mt={6} 
+            mb={6} 
+            boxShadow={'base'}
+            rounded={'md'}
+            pl={10}
+            pt={3}
+            pb={2.5}>
+            <StatGroup
+                textAlign={'center'}
+            >
                 <Stat>
                     <StatLabel>Current Price</StatLabel>
-                    <StatNumber>${quote.c}</StatNumber>
-                    <StatHelpText>
-                        <HStack height='50px'>
-                            <div>
-                                <StatArrow type={quote.d > 0 ? 'increase' : 'decrease'} />
-                                ${quote.d}
-                            </div>
-                            <div>
-                                <StatArrow type={quote.dp > 0 ? 'increase' : 'decrease'} />
-                                {quote.dp}%
-                            </div>
-                        </HStack>
-                    </StatHelpText>
+                    <StatNumber>${quote.c}
+                        <Box display={'inline-block'} fontSize={15} color={quote.d > 0? 'green.400' : 'red.400'}>
+                            <StatArrow type={quote.d > 0 ? 'increase' : 'decrease'} />
+                            (${quote.d})
+                        </Box>
+                    </StatNumber>
                 </Stat>
                 <Stat>
                     <StatLabel>High Price of the Day</StatLabel>
@@ -122,8 +142,17 @@ function Search() {
                     <StatNumber>${quote.pc}</StatNumber>
                 </Stat>
             </StatGroup>
+            </Box>
             }
             {recommendations &&
+            <Box
+            mt={6} 
+            mb={6} 
+            boxShadow={'base'}
+            rounded={'md'}
+            pl={10}
+            pt={3}
+            pb={1}>
                 <Table>
                     <TableCaption>Analyst recommendation trends for the previous {recommendations.length} months (# of analysts per category)</TableCaption>
                     <Thead>
@@ -154,13 +183,22 @@ function Search() {
                         }
                     </Tbody>
                 </Table>
+            </Box>
             }
             {peers &&
             <>
-                <Text>
+                <Divider my={8}/>
+                <Text fontSize={25}
+                    borderTop = {1}
+                    mb={6} 
+                    pl={10}
+                    pb={1}>
                     Related stocks:
                 </Text>
-                <List>
+                <List  
+                    mb={6} 
+                    pl={10}
+                    pb={1}>
                     {peers.map((peer, index) => (
                         <ListItem key={index}>
                             <ListIcon as={FaSearch} />
@@ -172,7 +210,7 @@ function Search() {
                 </List>
             </>
             }
-        </SearchDiv>
+        </Box>
     )
 }
 

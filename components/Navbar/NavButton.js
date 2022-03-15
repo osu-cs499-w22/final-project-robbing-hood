@@ -26,13 +26,13 @@ const Btn = styled.button`
     }
 
     &.btn--primary {
-        background-color: #3acbf7;
+        background-color: #81E6D9;
     }
 
     &.btn--outline {
         background-color: transparent;
         color: #ffffff;
-        border: 1px solid #3acbf7;
+        border: 1px solid #81E6D9;
         transition: all 0.3s ease-out;
     }
 
