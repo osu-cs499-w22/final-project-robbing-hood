@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import Link from 'next/link';
-import { Heading, Box, Text, Divider} from "@chakra-ui/react";
+import { Heading, Box, Text, Divider, Spacer} from "@chakra-ui/react";
 
 
 const Container = styled.div`
@@ -103,6 +103,7 @@ function About() {
       </Column>
     </Row>
   </Container>
+  <Spacer mb={20} />
   </Box>
   )
 }
