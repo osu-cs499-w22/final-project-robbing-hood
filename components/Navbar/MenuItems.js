@@ -16,7 +16,7 @@ export const MenuItems = [
     },
     {
         title: 'Watchlist',
-        url: '/watchlist',
+        url: '/users/watchlist',
         cName: 'nav-links'
     },
     {

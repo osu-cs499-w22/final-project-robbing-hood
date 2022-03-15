@@ -15,13 +15,19 @@ import {
   Button,
   HStack,
   Center,
-  Spinner
+  Spinner,
+  Heading,
+  Text
 } from '@chakra-ui/react';
+import { CloseIcon } from '@chakra-ui/icons';
 import styled from '@emotion/styled';
-import useStockProfile from '../hooks/useStockProfile';
+import useStockProfile from '../../hooks/useStockProfile';
 import { FaSearch } from 'react-icons/fa';
 import NextLink from 'next/link';
-import useStockQuote from '../hooks/useStockQuote';
+import useStockQuote from '../../hooks/useStockQuote';
+import { useSession, getSession } from "next-auth/react";
+import useSWR from 'swr';
+import { connectToDatabase } from '../../lib/db';
 
 import { parse, format } from 'date-fns';
 //Have favorites list, containing individual cards of each favorited stock data
@@ -75,28 +81,73 @@ const StatListDiv = styled.div`
 
 /************************************************************************************* */
 
+async function fetcher(url, ticker) {
+  const res = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+          ticker: ticker,
+      }),
+      headers: {
+          "Content-Type": "application/json",
+      },
+  });
+
+  if (!res.ok) {
+      const error = new Error('An error occurred while fetching the data.');
+      error.status = res.status;
+      error.info = await res.json();
+      throw error;
+  }
+  return await res.json();;
+}
 
 
+function Watchlist({ userWatchlist }){
 
-function Watchlist(){
+  const { data: session } = useSession();
+
+  const { data, error } = useSWR('/api/watchlistfetcher', { refreshInterval: 60000 });
+  console.log(data);
+  const [mongoDBWatchlist, setMongoDBWatchlist] = useState(userWatchlist || []);
+  console.log(mongoDBWatchlist);
+
+  async function clickHandler(ticker) {
+    setMongoDBWatchlist([]);
+    const res = await fetch('/api/watchlistdelete', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        ticker: ticker
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const resBody = await res.json();
+    console.log("resBody", resBody);
+    setMongoDBWatchlist(resBody.watchlist);
+  }
+
 
   //
   // Below, "user1.watchlist" is being used as the hypothetical array of tickers "watchlist" being fetched from the db
   // Instead, make db fetch call here, and populate below array with array fetched from db
-  let mongoDBWatchlist = [];  //First initialize as empty array
-
-  //mongoDBWatchlist = ...    <<<DB fetch>>>
 
   //  <<<<< Now, wherever in the code "user1.watchlist" is used, replace with "mongoDBWatchlist" >>>>>>> (Lmao, only happens on line 96, that's all, just replace that)
 
-
+  console.log(mongoDBWatchlist);
   //Ticker data is the array that needs to be populated with api response data (populated below in the forEach)
   let tickerData = [];
 
-  user1.watchlist.forEach(symbol => {
-    console.log("yes")
-    const {profile} = useStockProfile(symbol);
-    const { quote } = useStockQuote(symbol);
+  // Don't use hooks in loops!!!!!!!! Rule of hooks bro
+  mongoDBWatchlist.forEach(async symbol => {
+
+    // Profile
+
+    const profile = await fetcher('/api/profilefetcher', symbol);
+
+    const quote = await fetcher('/api/quotefetcher', symbol);
+
 
     tickerData.push({profile,quote})
 
@@ -131,7 +182,35 @@ function Watchlist(){
 
   }
 
-  /////
+  if (typeof window === 'undefined') return null;
+
+  if (!session) {
+    return (
+      <Box textAlign="center" py={10} px={6}>
+        <Box display="inline-block">
+          <Flex
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            bg={'red.500'}
+            rounded={'50px'}
+            w={'55px'}
+            h={'55px'}
+            textAlign="center">
+            <CloseIcon boxSize={'20px'} color={'white'} />
+          </Flex>
+        </Box>
+        <Heading as="h2" size="xl" mt={6} mb={2}>
+          You must be logged in to view the watchlist!
+        </Heading>
+        <Text color={'gray.500'}>
+          Please sign in or sign up (and then sign in) with an account to access the watchlist page!
+        </Text>
+      </Box>
+    )
+  }
+
+    /////
 
   //Below on line 179 inside tickerData.map, there's the button with "-"
   //For this one, needs an onClick function that performs an removal on the "watchlist" array for that specific ticker string
@@ -176,7 +255,7 @@ function Watchlist(){
 
 
 
-                <button>-</button>
+                <Button onClick={_ => clickHandler(data.profile.ticker)}>-</Button>
               </div>
             )}
           </Box>
@@ -297,6 +376,26 @@ function Watchlist(){
     </div>
   )
 
+}
+
+export async function getServerSideProps(context) {
+
+  const session = await getSession(context);
+
+  const client = await connectToDatabase();
+  const db = client.db();
+  const options = {
+      projection: { _id: 0, watchlist: 1 }
+  };
+
+  const userWatchlist = await db.collection('watchlists').findOne({ email: session.user.email }, options);
+
+  return {
+    props: {
+      session: session,
+      userWatchlist: JSON.parse(JSON.stringify(userWatchlist.watchlist))
+    }
+  }
 }
 
 export default Watchlist;

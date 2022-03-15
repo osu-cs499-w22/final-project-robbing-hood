@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { MenuItems } from './MenuItems';
 import { NavButton } from './NavButton';
 import { Icon } from '@chakra-ui/react';
+import { useSession, signIn, signOut } from "next-auth/react";
 import { IconContext } from 'react-icons';
 
 import { FaBars, FaTimes} from 'react-icons/fa';
@@ -145,13 +146,20 @@ const MenuIcon = styled(Icon)`
 
 function Navbar() {
 
+    const { data: session } = useSession();
+
     const [ menuClicked, setMenuClicked ] = useState(false);
 
     const router = useRouter();
 
-    const handleClick = (e) => {
-        e.preventDefault()
-        router.push("/users/signup")
+    const handleSignIn = (e) => {
+        e.preventDefault();
+        router.push("/users/signup");
+    }
+
+    const handleSignOut = (e) => {
+        e.preventDefault();
+        signOut({ callbackUrl: "/dashboard" });
     }
 
     return (
@@ -173,7 +181,11 @@ function Navbar() {
                     )
                 })}
             </List>
-            <NavButton onClick={handleClick}>Sign Up</NavButton>
+            {session ? 
+                <NavButton onClick={handleSignOut}>Sign Out</NavButton> 
+                :
+                <NavButton onClick={handleSignIn}>Sign Up</NavButton>
+            }
         </Nav>
     )
 }
