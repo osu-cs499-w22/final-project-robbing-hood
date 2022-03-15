@@ -2,7 +2,7 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 import { MenuItems } from './MenuItems';
 import { NavButton } from './NavButton';
-import { Icon } from '@chakra-ui/react';
+import { Icon, Img } from '@chakra-ui/react';
 import { useSession, signIn, signOut } from "next-auth/react";
 import { IconContext } from 'react-icons';
 
@@ -26,6 +26,10 @@ const Nav = styled.nav`
         position: relative;
     }
 `;
+
+const Logo = styled.img`
+    width = 100px;
+    height = 100px;`;
 
 const NavBarLogo = styled.h1`
     color: #ffffff;
