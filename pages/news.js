@@ -8,6 +8,7 @@ import {
   Box,
   Button,
   HStack,
+  Column,
   Center,
   Spinner
 } from '@chakra-ui/react';
