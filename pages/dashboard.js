@@ -35,7 +35,6 @@ export default function Dashboard() {
     }
   return (
     <Box>
-        <Heading>{status === 'authenticated' ? `Hello ${session.user.name}` : 'You are not logged in'}</Heading>
         <FormatPhoto src="https://www.finance-monthly.com/Finance-Monthly/wp-content/uploads/2021/08/Synthetic-Stcoks-The-Real-Day-Or-Just-A-Fad.jpg" alt='stock1'/>
         <Box color={'#fff'} position={'absolute'} top={'25%'} left={'50%'} transform={'translate(-50%,-50%)'}>
             <Text fontSize={40} fontWeight={'bold'}>Trade the modern way.<br/> Learn. Trade. Profit.</Text>

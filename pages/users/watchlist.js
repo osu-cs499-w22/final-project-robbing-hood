@@ -148,8 +148,7 @@ function Watchlist({ userWatchlist }){
 
     const quote = await fetcher('/api/quotefetcher', symbol);
 
-
-    tickerData.push({profile,quote})
+    tickerData.push({profile,quote});
 
   });
 
@@ -229,9 +228,9 @@ function Watchlist({ userWatchlist }){
       <WatchlistDiv>
         <h1>My Watchlist</h1>
 
-        {isPopulated &&
+        
           <Box>
-            { tickerData.map(data => 
+            {tickerData.map(data => 
                 
               <div key={data.profile.ticker}>
                 <p>{data.profile.ticker}</p>
@@ -259,7 +258,6 @@ function Watchlist({ userWatchlist }){
               </div>
             )}
           </Box>
-        }
 
 
       </WatchlistDiv>
