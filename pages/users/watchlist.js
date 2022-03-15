@@ -227,6 +227,7 @@ function Watchlist({ userWatchlist }){
     
       <WatchlistDiv>
         <h1>My Watchlist</h1>
+        {mongoDBWatchlist.map(ticker => <div><p>{ticker}</p></div>)}
 
         
           <Box>
@@ -254,7 +255,7 @@ function Watchlist({ userWatchlist }){
 
 
 
-                <Button onClick={_ => clickHandler(data.profile.ticker)}>-</Button>
+                
               </div>
             )}
           </Box>
