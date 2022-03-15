@@ -4,7 +4,7 @@ import { MenuItems } from './MenuItems';
 import { NavButton } from './NavButton';
 import { Icon } from '@chakra-ui/react';
 
-import { FaBars, FaTimes } from 'react-icons/fa';
+import { FaBars, FaTimes} from 'react-icons/fa';
 
 import styled from '@emotion/styled';
 import { useRouter } from 'next/router';
