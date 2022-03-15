@@ -27,15 +27,17 @@ const Nav = styled.nav`
     }
 `;
 
-const Logo = styled.img`
-    width = 100px;
-    height = 100px;`;
-
 const NavBarLogo = styled.h1`
     color: #ffffff;
     justify-self: start;
     margin-left: 20px;
     cursor: pointer;
+    font-size: 1.3rem;
+    background-color: #38B2AC;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 
     @media (max-width: 960px) {
         position: absolute;
@@ -161,6 +163,11 @@ function Navbar() {
         router.push("/users/signup");
     }
 
+    const handleLogo = (e) => {
+        e.preventDefault();
+        router.push("/dashboard");
+    }
+
     const handleSignOut = (e) => {
         e.preventDefault();
         signOut({ callbackUrl: "/dashboard" });
@@ -168,7 +175,7 @@ function Navbar() {
 
     return (
         <Nav>
-            <NavBarLogo className='navbar-logo'>Robbing Hood</NavBarLogo>
+            <NavBarLogo className='navbar-logo' onClick={handleLogo}>Robbing Hood</NavBarLogo>
             <MenuIconDiv className='menu-icon' onClick={() => setMenuClicked(!menuClicked)}>
                 <MenuIcon as={menuClicked ? FaTimes : FaBars} />
             </MenuIconDiv>
