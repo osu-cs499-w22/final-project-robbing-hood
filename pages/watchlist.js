@@ -37,6 +37,10 @@ import { parse, format } from 'date-fns';
     
 //For database, just need list of {ticker}. Can use ticker to grab all other information.
 
+
+/***************************************************************************** */
+//Fake static database. "user1" is the user. Contains watchlist and portfolio entries.
+//For this watchlist file, only need the watchlist entry
 const stake1 = {
   ticker: "GME",
   quantity: 17
@@ -69,11 +73,24 @@ const StatListDiv = styled.div`
   padding: 10px;
 `;
 
+/************************************************************************************* */
+
+
 
 
 function Watchlist(){
 
+  //
+  // Below, "user1.watchlist" is being used as the hypothetical array of tickers "watchlist" being fetched from the db
+  // Instead, make db fetch call here, and populate below array with array fetched from db
+  let mongoDBWatchlist = [];  //First initialize as empty array
 
+  //mongoDBWatchlist = ...    <<<DB fetch>>>
+
+  //  <<<<< Now, wherever in the code "user1.watchlist" is used, replace with "mongoDBWatchlist" >>>>>>> (Lmao, only happens on line 96, that's all, just replace that)
+
+
+  //Ticker data is the array that needs to be populated with api response data (populated below in the forEach)
   let tickerData = [];
 
   user1.watchlist.forEach(symbol => {
@@ -113,6 +130,17 @@ function Watchlist(){
     flat = [...sortWith];
 
   }
+
+  /////
+
+  //Below on line 179 inside tickerData.map, there's the button with "-"
+  //For this one, needs an onClick function that performs an removal on the "watchlist" array for that specific ticker string
+  //Just do "remove (data.profile.ticker)", that's all that needs to be added.
+
+  //Also, a similar thing needs to be added to the results section in search.js. Just a button, but instead do insert (profile.ticker) for user
+
+  //////
+  //////
 
   return(
 
