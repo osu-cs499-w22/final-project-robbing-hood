@@ -13,7 +13,8 @@ import { FaArrowRight } from 'react-icons/fa';
 
 const FormatPhoto = styled.img`
     width: 100%;
-    height: 800px;`;
+    height: 800px;
+    object-fit: cover;`;
 
 const ContentDiv = styled.div`
     display: flex;

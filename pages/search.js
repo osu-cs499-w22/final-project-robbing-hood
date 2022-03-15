@@ -15,6 +15,7 @@ import {
     StatNumber,
     StatHelpText,
     StatArrow,
+    Spacer,
     StatGroup,
     Heading,
     List,
@@ -35,7 +36,7 @@ import {
 import styled from '@emotion/styled';
 import useStockProfile from '../hooks/useStockProfile';
 import useStockPeers from '../hooks/useStockPeers';
-import { FaSearch } from 'react-icons/fa';
+import { FaSearch, FaPlus } from 'react-icons/fa';
 import NextLink from 'next/link';
 import useStockQuote from '../hooks/useStockQuote';
 import useStockRecommendations from '../hooks/useStockRecommendations';
@@ -47,6 +48,11 @@ const SearchDiv = styled.div`
 `;
 
 function Search() {
+
+    const handleClick = (e) => {
+        e.preventDefault()
+        router.push("/users/signup")
+    }
 
     // https://stackoverflow.com/questions/61040790/userouter-withrouter-receive-undefined-on-query-in-first-render
     const router = useRouter();
@@ -102,6 +108,16 @@ function Search() {
                 <Text>Currency: {profile.currency}</Text>
                 <Text>Industry: {profile.finnhubIndustry}</Text>
                 <Text>IPO: {profile.ipo}</Text>
+                <Button
+                mt={4}
+                p={5}
+                color={'white'}
+                backgroundColor={'blue.400'}
+                _hover={{ backgroundColor: 'blue.600' }}
+                onClick={handleClick}
+              >
+                Add to Watchlist <Spacer pl={2}/><FaPlus/>
+              </Button>
             </Box>
             }
             {quote && 
