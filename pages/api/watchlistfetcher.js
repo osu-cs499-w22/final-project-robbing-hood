@@ -24,8 +24,10 @@ export default async (req, res) => {
             
             const newWatchlist = await db.collection('watchlists').findOne({ email: session.user.email }, options);
 
+            client.close();
             res.status(200).send(newWatchlist);
         } else {
+            client.close();
             res.status(200).send(watchlist);
         }
 
