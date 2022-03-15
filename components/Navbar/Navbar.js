@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import { MenuItems } from './MenuItems';
 import { NavButton } from './NavButton';
 import { Icon } from '@chakra-ui/react';
+import { IconContext } from 'react-icons';
 
 import { FaBars, FaTimes} from 'react-icons/fa';
+import { GiFeather } from 'react-icons/gi';
 
 import styled from '@emotion/styled';
 import { useRouter } from 'next/router';
@@ -64,7 +66,7 @@ const List = styled.ul`
 
         &.active {
             @media (max-width: 960px) {
-                background: #6668f4;
+                background: #1A202C;
                 z-index: 1;
                 left: 0;
                 opacity: 1;
