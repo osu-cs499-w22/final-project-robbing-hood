@@ -77,7 +77,7 @@ function Footer() {
             <Link href="/dashboard"><FooterLink>Home</FooterLink></Link>
             <Link href="/search"><FooterLink>Search</FooterLink></Link>
             <Link href="/news"><FooterLink>News</FooterLink></Link>
-            <Link href="/aboutus"><FooterLink>About Us</FooterLink></Link>
+            <Link href="/about"><FooterLink>About Us</FooterLink></Link>
           </Column>
           <Column>
             <HeadingP>Contact Us</HeadingP>
