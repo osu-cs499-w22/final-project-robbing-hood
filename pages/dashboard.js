@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useSession } from "next-auth/react";
 import { useRouter } from 'next/router';
 import {
     Box,
     Text,
     Button, 
-    Spacer
+    Spacer,
+    Heading
 } from '@chakra-ui/react';
 import styled from '@emotion/styled';
 import { FaArrowRight } from 'react-icons/fa';
@@ -21,6 +23,10 @@ const ContentDiv = styled.div`
 
 export default function Dashboard() {
     const router = useRouter();
+  
+    const { data: session, status } = useSession();
+
+    console.log(session);
 
     const handleClick = (e) => {
         e.preventDefault()
@@ -28,6 +34,7 @@ export default function Dashboard() {
     }
   return (
     <Box>
+        <Heading>{status === 'authenticated' ? `Hello ${session.user.name}` : 'You are not logged in'}</Heading>
         <FormatPhoto src="https://www.finance-monthly.com/Finance-Monthly/wp-content/uploads/2021/08/Synthetic-Stcoks-The-Real-Day-Or-Just-A-Fad.jpg" alt='stock1'/>
         <Box color={'#fff'} position={'absolute'} top={'25%'} left={'50%'} transform={'translate(-50%,-50%)'}>
             <Text fontSize={40} fontWeight={'bold'}>Trade the modern way.<br/> Learn. Trade. Profit.</Text>
