@@ -92,14 +92,14 @@ function About() {
         <FooterLink href="https://www.linkedin.com/in/nelson-van-de-lindt/">Linkedin</FooterLink>
       </Column>
       <Column>
-        <HeadingP>Kai</HeadingP>
+        <HeadingP>Khai</HeadingP>
         <FooterLink href="mailto:phankha@oregonstate.edu">Email</FooterLink>
-        <FooterLink href="https://www.linkedin.com">Linkedin</FooterLink>
+        <FooterLink href="https://www.linkedin.com/in/khai-phan/">Linkedin</FooterLink>
       </Column>
       <Column>
         <HeadingP>Scot</HeadingP>
         <FooterLink href="mailto:reins@oregonstate.edu">Email</FooterLink>
-        <FooterLink href="https://www.linkedin.com">Linkedin</FooterLink>
+        <FooterLink href="https://www.linkedin.com/in/scot-rein/">Linkedin</FooterLink>
       </Column>
     </Row>
   </Container>
