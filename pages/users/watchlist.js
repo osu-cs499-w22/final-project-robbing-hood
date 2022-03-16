@@ -104,12 +104,12 @@ async function fetcher(url, ticker) {
 
 function Watchlist({ userWatchlist }){
 
+  console.log("prop watchlist", userWatchlist);
+
   const { data: session } = useSession();
 
-  const { data, error } = useSWR('/api/watchlistfetcher', { refreshInterval: 60000 });
-  console.log(data);
   const [mongoDBWatchlist, setMongoDBWatchlist] = useState(userWatchlist || []);
-  console.log(mongoDBWatchlist);
+  console.log("Mongo",mongoDBWatchlist);
 
   async function clickHandler(ticker) {
     setMongoDBWatchlist([]);
@@ -128,14 +128,7 @@ function Watchlist({ userWatchlist }){
     setMongoDBWatchlist(resBody.watchlist);
   }
 
-
-  //
-  // Below, "user1.watchlist" is being used as the hypothetical array of tickers "watchlist" being fetched from the db
-  // Instead, make db fetch call here, and populate below array with array fetched from db
-
-  //  <<<<< Now, wherever in the code "user1.watchlist" is used, replace with "mongoDBWatchlist" >>>>>>> (Lmao, only happens on line 96, that's all, just replace that)
-
-  console.log(mongoDBWatchlist);
+  console.log("MongoDB Watchlist", mongoDBWatchlist);
   //Ticker data is the array that needs to be populated with api response data (populated below in the forEach)
   let tickerData = [];
 
@@ -209,36 +202,21 @@ function Watchlist({ userWatchlist }){
     )
   }
 
-    /////
-
-  //Below on line 179 inside tickerData.map, there's the button with "-"
-  //For this one, needs an onClick function that performs an removal on the "watchlist" array for that specific ticker string
-  //Just do "remove (data.profile.ticker)", that's all that needs to be added.
-
-  //Also, a similar thing needs to be added to the results section in search.js. Just a button, but instead do insert (profile.ticker) for user
-
-  //////
-  //////
-
   return(
 
     <div>
-
-    
       <WatchlistDiv>
         <h1>My Watchlist</h1>
-        {mongoDBWatchlist.map(ticker => <div><p>{ticker}</p></div>)}
+        {mongoDBWatchlist ?
+        mongoDBWatchlist.map((ticker, index) => <div key={index}><p>{ticker}</p><Button onClick={_ => clickHandler(ticker)}>x</Button></div>) : null}
 
-        
-          <Box>
+          {/* <Box>
             {tickerData.map(data => 
                 
               <div key={data.profile.ticker}>
                 <p>{data.profile.ticker}</p>
                 <p>{data.profile.name}</p>
                 <p>{data.quote.c}</p>
-
-
                 <Stat>
                   <StatHelpText>
                       <HStack height='50px'>
@@ -252,18 +230,14 @@ function Watchlist({ userWatchlist }){
                       </HStack>
                   </StatHelpText>
                 </Stat>
-
-
-
-                
               </div>
             )}
-          </Box>
+          </Box> */}
 
 
       </WatchlistDiv>
 
-      <StatsDiv>
+      {/* <StatsDiv>
         <h1>Watchlist Statistics</h1>
 
         <StatListDiv>
@@ -368,7 +342,7 @@ function Watchlist({ userWatchlist }){
 
         </StatListDiv>
 
-      </StatsDiv>
+      </StatsDiv> */}
 
 
 
@@ -396,12 +370,14 @@ export async function getServerSideProps(context) {
     }
   }
 
+  console.log("Authenticated");
   const userWatchlist = await db.collection('watchlists').findOne({ email: session.user.email }, options);
 
+  console.log(userWatchlist);
   return {
     props: {
       session: session,
-      userWatchlist: JSON.parse(JSON.stringify(userWatchlist.watchlist))
+      userWatchlist: userWatchlist.watchlist
     }
   }
 }
