@@ -107,9 +107,11 @@ function Watchlist({ userWatchlist }){
   const { data: session } = useSession();
 
   const [mongoDBWatchlist, setMongoDBWatchlist] = useState(userWatchlist || []);
+  const [isLoading, setIsLoading] = useState(false);
 
   async function clickHandler(ticker) {
     setMongoDBWatchlist([]);
+    setIsLoading(true);
     const res = await fetch('/api/watchlistdelete', {
       method: 'PATCH',
       body: JSON.stringify({
@@ -122,6 +124,7 @@ function Watchlist({ userWatchlist }){
 
     const resBody = await res.json();
     console.log("resBody", resBody.value.watchlist);
+    setIsLoading(false);
     setMongoDBWatchlist(resBody.value.watchlist);
   }
 
@@ -197,13 +200,26 @@ function Watchlist({ userWatchlist }){
     )
   }
 
+  // Loading
+  if (isLoading) {
+    return (
+        <Spinner
+          thickness='4px'
+          speed='0.65s'
+          emptyColor='gray.200'
+          color='blue.500'
+          size='xl'
+        />
+    )
+  }
+
   return(
 
     <div>
       <WatchlistDiv>
         <h1>My Watchlist</h1>
         {mongoDBWatchlist ?
-        mongoDBWatchlist.map((ticker, index) => <div key={ticker}><p>{ticker}</p><Button onClick={_ => clickHandler(ticker)}>x</Button></div>) : null}
+        mongoDBWatchlist.map((ticker, index) => <div key={index}><p>{ticker}</p><Button onClick={_ => clickHandler(ticker)}>x</Button></div>) : null}
 
           {/* <Box>
             {tickerData.map(data => 
