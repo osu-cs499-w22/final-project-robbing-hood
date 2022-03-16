@@ -79,20 +79,41 @@ async function fetcher(url, ticker) {
       error.info = await res.json();
       throw error;
   }
-  return await res.json();;
+  return await res.json();
 }
 
+const initFetcher = (...args) => fetch(...args).then(res => res.json());
 
-function Watchlist({ userWatchlist }){
+function Watchlist({ userWatchlist, initTickerData }){
 
   const { data: session } = useSession();
 
   const [mongoDBWatchlist, setMongoDBWatchlist] = useState(userWatchlist || []);
+  const [tickerData, setTickerData] = useState(initTickerData || []);
   const [isLoading, setIsLoading] = useState(false);
 
+  async function refetchTickerData() {
+    setTickerData([]);
+    let newTickerData = [];
+
+    for (const symbol of mongoDBWatchlist) {
+      const result = await Promise.all([
+        fetcher('/api/profilefetcher', symbol),
+        fetcher('/api/quotefetcher', symbol)
+      ]);
+
+      console.log("== REFETCH Promise all result", result);
+      const [profile, quote] = result;
+
+      newTickerData.push({profile, quote});
+    }
+
+    setTickerData(newTickerData);
+  }
+
   async function clickHandler(ticker) {
-    setMongoDBWatchlist([]);
     setIsLoading(true);
+    setMongoDBWatchlist([]);
     const res = await fetch('/api/watchlistdelete', {
       method: 'PATCH',
       body: JSON.stringify({
@@ -105,25 +126,11 @@ function Watchlist({ userWatchlist }){
 
     const resBody = await res.json();
     console.log("resBody", resBody.value.watchlist);
-    setIsLoading(false);
     setMongoDBWatchlist(resBody.value.watchlist);
+    await refetchTickerData();
+    setIsLoading(false);
   }
 
-  // console.log("MongoDB Watchlist", mongoDBWatchlist);
-  //Ticker data is the array that needs to be populated with api response data (populated below in the forEach)
-  let tickerData = [];
-
-  if (mongoDBWatchlist) {
-    mongoDBWatchlist.forEach(async symbol => {
-
-      // Profile
-      const profile = await fetcher('/api/profilefetcher', symbol);
-  
-      const quote = await fetcher('/api/quotefetcher', symbol);
-  
-      tickerData.push({profile,quote});
-    });
-  }
 
   const loading = (data) => ((data.profile !== undefined)&&(data.quote !== undefined));
 
@@ -184,6 +191,7 @@ function Watchlist({ userWatchlist }){
   // Loading
   if (isLoading) {
     return (
+      <Box textAlign="center" py={10} px={6}>
         <Spinner
           thickness='4px'
           speed='0.65s'
@@ -191,6 +199,7 @@ function Watchlist({ userWatchlist }){
           color='blue.500'
           size='xl'
         />
+      </Box>
     )
   }
 
@@ -199,13 +208,11 @@ function Watchlist({ userWatchlist }){
     <div>
       <WatchlistDiv>
         <h1>My Watchlist</h1>
-        {mongoDBWatchlist ?
-        mongoDBWatchlist.map((ticker, index) => <div key={index}><p>{ticker}</p><Button onClick={_ => clickHandler(ticker)}>x</Button></div>) : null}
 
           <Box>
-            {tickerData.map(data => 
+            {tickerData.map((data, index) => 
                 
-              <div key={data.profile.ticker}>
+              <div key={index}>
                 <p>{data.profile.ticker}</p>
                 <p>{data.profile.name}</p>
                 <p>{data.quote.c}</p>
@@ -222,6 +229,7 @@ function Watchlist({ userWatchlist }){
                       </HStack>
                   </StatHelpText>
                 </Stat>
+                <Button onClick={_ => clickHandler(data.profile.ticker)}>x</Button>
               </div>
             )}
           </Box>
@@ -347,7 +355,8 @@ export async function getServerSideProps(context) {
     return {
       props: {
         session: session,
-        userWatchlist: []
+        userWatchlist: [],
+        initTickerData: []
       }
     }
   }
@@ -360,11 +369,40 @@ export async function getServerSideProps(context) {
 
   const userWatchlist = await db.collection('watchlists').findOne({ email: session.user.email }, options);
 
+  //Ticker data is the array that needs to be populated with api response data (populated below in the forEach)
+  async function fetchAllTickerData() {
+    let tickerData = [];
+
+    for (const symbol of userWatchlist.watchlist) {
+      const result = await Promise.all([
+        initFetcher(
+          `${process.env.FINNHUB_API_BASE_URL}/stock/profile2?symbol=${symbol}&token=${process.env.FINNHUB_API_KEY_2}`
+        ),
+        initFetcher(
+          `${process.env.FINNHUB_API_BASE_URL}/quote?symbol=${symbol}&token=${process.env.FINNHUB_API_KEY_2}`
+        )
+      ]);
+
+      console.log("Promise all result", result);
+      const [profile, quote] = result;
+
+      tickerData.push({profile, quote});
+    }
+
+    console.log("In async");
+    return tickerData;
+  }
+  
+  const initTickerData = await fetchAllTickerData();
+
+  console.log("Server ticker data", initTickerData);
+
   client.close();
   return {
     props: {
       session: session,
-      userWatchlist: userWatchlist.watchlist
+      userWatchlist: userWatchlist.watchlist,
+      initTickerData: initTickerData
     }
   }
 }
