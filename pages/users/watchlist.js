@@ -29,7 +29,11 @@ import { useSession, getSession } from "next-auth/react";
 import useSWR from 'swr';
 import { connectToDatabase } from '../../lib/db';
 
-import { parse, format } from 'date-fns';
+/*
+REFACTOR TO USE SERVERSIDE RENDERING, FETCH TICKERS FROM DB AND THEN FETCH FROM API FOR EACH TICKER IN DB AND THEN SERVE ALL AT
+ONCE TO COMPONENT THRU PROPS, THEN HAVE FUNCTIONS TO REMOVE TICKERS AND THUS MODIFY DB AND LOCAL COPY OF TICKER INFO FOR CALCULATIONS
+*/
+
 //Have favorites list, containing individual cards of each favorited stock data
 //Individual list entry will contain Name, Ticker, Current Price, Up or Down colored arrow, indicating higher or lower than opening price
 //Also have "-" button, which will remove the entry from the stored list, and therefore will remove it from being rendered.
@@ -42,29 +46,6 @@ import { parse, format } from 'date-fns';
 
     
 //For database, just need list of {ticker}. Can use ticker to grab all other information.
-
-
-/***************************************************************************** */
-//Fake static database. "user1" is the user. Contains watchlist and portfolio entries.
-//For this watchlist file, only need the watchlist entry
-const stake1 = {
-  ticker: "GME",
-  quantity: 17
-}
-const stake2 = {
-  ticker: "NVDA",
-  quantity: 4
-}
-const stake3 = {
-  ticker: "AAPL",
-  quantity: 6
-}
-
-const user1 = {
-  watchlist: ["GME","AAPL","NVDA","TSLA","MSFT","PFE","AMD","PLTR","SOFI"],
-
-  portfolio: [stake1,stake2,stake3]
-}
 
 
 const WatchlistDiv = styled.div`
@@ -130,47 +111,47 @@ function Watchlist({ userWatchlist }){
 
   // console.log("MongoDB Watchlist", mongoDBWatchlist);
   //Ticker data is the array that needs to be populated with api response data (populated below in the forEach)
-  // let tickerData = [];
+  let tickerData = [];
 
-  // if (mongoDBWatchlist) {
-  //   mongoDBWatchlist.forEach(async symbol => {
+  if (mongoDBWatchlist) {
+    mongoDBWatchlist.forEach(async symbol => {
 
-  //     // Profile
-  //     const profile = await fetcher('/api/profilefetcher', symbol);
+      // Profile
+      const profile = await fetcher('/api/profilefetcher', symbol);
   
-  //     const quote = await fetcher('/api/quotefetcher', symbol);
+      const quote = await fetcher('/api/quotefetcher', symbol);
   
-  //     tickerData.push({profile,quote});
-  //   });
-  // }
+      tickerData.push({profile,quote});
+    });
+  }
 
-  // const loading = (data) => ((data.profile !== undefined)&&(data.quote !== undefined));
+  const loading = (data) => ((data.profile !== undefined)&&(data.quote !== undefined));
 
-  // const isPopulated = tickerData.every(loading);
+  const isPopulated = tickerData.every(loading);
 
-  // console.log("Ticker Data", tickerData);
+  console.log("Ticker Data", tickerData);
 
-  // let highest = [];
-  // let lowest = [];
-  // let flat = [];
+  let highest = [];
+  let lowest = [];
+  let flat = [];
 
-  // if(isPopulated){
-  //   let sortWith = [...tickerData];
+  if(isPopulated){
+    let sortWith = [...tickerData];
 
-  //   //https://flaviocopes.com/how-to-sort-array-of-objects-by-property-javascript/
-  //   sortWith.sort((x,y) => (x.quote.dp < y.quote.dp) ? 1 : -1)
-  //   highest = [...sortWith];
+    //https://flaviocopes.com/how-to-sort-array-of-objects-by-property-javascript/
+    sortWith.sort((x,y) => (x.quote.dp < y.quote.dp) ? 1 : -1)
+    highest = [...sortWith];
 
-  //   sortWith.sort((x,y) => (x.quote.dp > y.quote.dp) ? 1 : -1)
-  //   lowest = [...sortWith];
+    sortWith.sort((x,y) => (x.quote.dp > y.quote.dp) ? 1 : -1)
+    lowest = [...sortWith];
 
-  //   sortWith.forEach(member => {
-  //     member.quote.dp = Math.abs(member.quote.dp)
-  //   })
-  //   sortWith.sort((x,y) => (x.quote.dp > y.quote.dp) ? 1 : -1)
-  //   flat = [...sortWith];
+    sortWith.forEach(member => {
+      member.quote.dp = Math.abs(member.quote.dp)
+    })
+    sortWith.sort((x,y) => (x.quote.dp > y.quote.dp) ? 1 : -1)
+    flat = [...sortWith];
 
-  // }
+  }
 
   if (typeof window === 'undefined') return null;
 
@@ -221,7 +202,7 @@ function Watchlist({ userWatchlist }){
         {mongoDBWatchlist ?
         mongoDBWatchlist.map((ticker, index) => <div key={index}><p>{ticker}</p><Button onClick={_ => clickHandler(ticker)}>x</Button></div>) : null}
 
-          {/* <Box>
+          <Box>
             {tickerData.map(data => 
                 
               <div key={data.profile.ticker}>
@@ -243,10 +224,10 @@ function Watchlist({ userWatchlist }){
                 </Stat>
               </div>
             )}
-          </Box> */}
+          </Box>
       </WatchlistDiv>
 
-      {/* <StatsDiv>
+      <StatsDiv>
         <h1>Watchlist Statistics</h1>
 
         <StatListDiv>
@@ -351,7 +332,7 @@ function Watchlist({ userWatchlist }){
 
         </StatListDiv>
 
-      </StatsDiv> */}
+      </StatsDiv>
 
     </div>
   )
@@ -389,16 +370,3 @@ export async function getServerSideProps(context) {
 }
 
 export default Watchlist;
-
-
-
-
-
-
-
-
-
-
-
-
-
