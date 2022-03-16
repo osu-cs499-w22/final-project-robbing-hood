@@ -25,7 +25,8 @@ export default async (req, res) => {
     // directly remove/filter out the ticker
     const userWatchlist = await watchlistsCollection.findOneAndUpdate(
         { email: userEmail },
-        { $pull: { watchlist: targetTicker }}
+        { $pull: { watchlist: targetTicker }},
+        { returnDocument: 'after' }
     );
 
     client.close();

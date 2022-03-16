@@ -104,12 +104,9 @@ async function fetcher(url, ticker) {
 
 function Watchlist({ userWatchlist }){
 
-  console.log("prop watchlist", userWatchlist);
-
   const { data: session } = useSession();
 
   const [mongoDBWatchlist, setMongoDBWatchlist] = useState(userWatchlist || []);
-  console.log("Mongo",mongoDBWatchlist);
 
   async function clickHandler(ticker) {
     setMongoDBWatchlist([]);
@@ -124,55 +121,53 @@ function Watchlist({ userWatchlist }){
     });
 
     const resBody = await res.json();
-    console.log("resBody", resBody);
-    setMongoDBWatchlist(resBody.watchlist);
+    console.log("resBody", resBody.value.watchlist);
+    setMongoDBWatchlist(resBody.value.watchlist);
   }
 
-  console.log("MongoDB Watchlist", mongoDBWatchlist);
+  // console.log("MongoDB Watchlist", mongoDBWatchlist);
   //Ticker data is the array that needs to be populated with api response data (populated below in the forEach)
-  let tickerData = [];
+  // let tickerData = [];
 
-  // Don't use hooks in loops!!!!!!!! Rule of hooks bro
-  mongoDBWatchlist.forEach(async symbol => {
+  // if (mongoDBWatchlist) {
+  //   mongoDBWatchlist.forEach(async symbol => {
 
-    // Profile
+  //     // Profile
+  //     const profile = await fetcher('/api/profilefetcher', symbol);
+  
+  //     const quote = await fetcher('/api/quotefetcher', symbol);
+  
+  //     tickerData.push({profile,quote});
+  //   });
+  // }
 
-    const profile = await fetcher('/api/profilefetcher', symbol);
+  // const loading = (data) => ((data.profile !== undefined)&&(data.quote !== undefined));
 
-    const quote = await fetcher('/api/quotefetcher', symbol);
+  // const isPopulated = tickerData.every(loading);
 
-    tickerData.push({profile,quote});
+  // console.log("Ticker Data", tickerData);
 
-  });
+  // let highest = [];
+  // let lowest = [];
+  // let flat = [];
 
+  // if(isPopulated){
+  //   let sortWith = [...tickerData];
 
-  const loading = (data) => ((data.profile !== undefined)&&(data.quote !== undefined));
+  //   //https://flaviocopes.com/how-to-sort-array-of-objects-by-property-javascript/
+  //   sortWith.sort((x,y) => (x.quote.dp < y.quote.dp) ? 1 : -1)
+  //   highest = [...sortWith];
 
-  const isPopulated = tickerData.every(loading);
+  //   sortWith.sort((x,y) => (x.quote.dp > y.quote.dp) ? 1 : -1)
+  //   lowest = [...sortWith];
 
-  console.log(tickerData)
+  //   sortWith.forEach(member => {
+  //     member.quote.dp = Math.abs(member.quote.dp)
+  //   })
+  //   sortWith.sort((x,y) => (x.quote.dp > y.quote.dp) ? 1 : -1)
+  //   flat = [...sortWith];
 
-  let highest = [];
-  let lowest = [];
-  let flat = [];
-
-  if(isPopulated){
-    let sortWith = [...tickerData];
-
-    //https://flaviocopes.com/how-to-sort-array-of-objects-by-property-javascript/
-    sortWith.sort((x,y) => (x.quote.dp < y.quote.dp) ? 1 : -1)
-    highest = [...sortWith];
-
-    sortWith.sort((x,y) => (x.quote.dp > y.quote.dp) ? 1 : -1)
-    lowest = [...sortWith];
-
-    sortWith.forEach(member => {
-      member.quote.dp = Math.abs(member.quote.dp)
-    })
-    sortWith.sort((x,y) => (x.quote.dp > y.quote.dp) ? 1 : -1)
-    flat = [...sortWith];
-
-  }
+  // }
 
   if (typeof window === 'undefined') return null;
 
@@ -208,7 +203,7 @@ function Watchlist({ userWatchlist }){
       <WatchlistDiv>
         <h1>My Watchlist</h1>
         {mongoDBWatchlist ?
-        mongoDBWatchlist.map((ticker, index) => <div key={index}><p>{ticker}</p><Button onClick={_ => clickHandler(ticker)}>x</Button></div>) : null}
+        mongoDBWatchlist.map((ticker, index) => <div key={ticker}><p>{ticker}</p><Button onClick={_ => clickHandler(ticker)}>x</Button></div>) : null}
 
           {/* <Box>
             {tickerData.map(data => 
@@ -233,8 +228,6 @@ function Watchlist({ userWatchlist }){
               </div>
             )}
           </Box> */}
-
-
       </WatchlistDiv>
 
       {/* <StatsDiv>
@@ -344,8 +337,6 @@ function Watchlist({ userWatchlist }){
 
       </StatsDiv> */}
 
-
-
     </div>
   )
 
@@ -354,12 +345,6 @@ function Watchlist({ userWatchlist }){
 export async function getServerSideProps(context) {
 
   const session = await getSession(context);
-
-  const client = await connectToDatabase();
-  const db = client.db();
-  const options = {
-      projection: { _id: 0, watchlist: 1 }
-  };
 
   if (!session) {
     return {
@@ -370,10 +355,15 @@ export async function getServerSideProps(context) {
     }
   }
 
-  console.log("Authenticated");
+  const client = await connectToDatabase();
+  const db = client.db();
+  const options = {
+      projection: { _id: 0, watchlist: 1 }
+  };
+
   const userWatchlist = await db.collection('watchlists').findOne({ email: session.user.email }, options);
 
-  console.log(userWatchlist);
+  client.close();
   return {
     props: {
       session: session,
