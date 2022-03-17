@@ -29,6 +29,7 @@ function StockCard({ profile, quote, clickHandler }) {
 
             <Image
                 boxSize="sm"
+                objectFit='contain'
                 src={profile.logo}
                 alt={`Picture of ${profile.ticker}`}
                 roundedTop="lg"
@@ -88,4 +89,4 @@ function StockCard({ profile, quote, clickHandler }) {
     );
 }
 
-export default StockCard
+export default StockCard;

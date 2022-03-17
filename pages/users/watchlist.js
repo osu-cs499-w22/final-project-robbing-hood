@@ -1,20 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Flex,
-  FormControl,
-  FormLabel,
-  FormHelperText,
-  Select,
   Box,
-  Stat,
-  StatLabel,
-  StatNumber,
-  StatHelpText,
-  StatArrow,
-  StatGroup,
-  Button,
-  HStack,
-  Center,
   Spinner,
   Heading,
   Text
@@ -22,18 +9,11 @@ import {
 import { CloseIcon } from '@chakra-ui/icons';
 import styled from '@emotion/styled';
 import StockCard from '../../components/StockCard/StockCard';
+import StockCardMini from '../../components/StockCardMini/StockCardMini';
 import { useSession, getSession } from "next-auth/react";
 import { connectToDatabase } from '../../lib/db';
 
-const WatchlistDiv = styled.div`
-  padding: 10px;
-`;
-
-const StatsDiv = styled.div`
-  padding: 10px;
-`;
-
-const StatListDiv = styled.div`
+const StyledDiv = styled.div`
   padding: 10px;
 `;
 
@@ -70,7 +50,6 @@ function Watchlist({ userWatchlist, initTickerData }){
   const [isLoading, setIsLoading] = useState(false);
 
   async function refetchTickerData() {
-    console.log("Inside refetch func");
     setTickerData([]);
     let newTickerData = [];
     console.log("Mongo DB watchlist before data fetch", mongoDBWatchlist);
@@ -80,7 +59,6 @@ function Watchlist({ userWatchlist, initTickerData }){
         fetcher('/api/quotefetcher', symbol)
       ]);
 
-      console.log("== REFETCH Promise all result", result);
       const [profile, quote] = result;
 
       newTickerData.push({profile, quote});
@@ -103,10 +81,7 @@ function Watchlist({ userWatchlist, initTickerData }){
     });
 
     const resBody = await res.json();
-    console.log("resBody", resBody.value.watchlist);
-    console.log("Before set new watchlist");
     setMongoDBWatchlist(resBody.value.watchlist);
-    console.log("After set new watchlist");
     setIsLoading(false);
   }
 
@@ -171,102 +146,47 @@ function Watchlist({ userWatchlist, initTickerData }){
   return(
 
     <div>
-      <WatchlistDiv>
+      <StyledDiv>
         <Heading>My Watchlist</Heading>
           <Flex wrap="wrap" justify="space-evenly" align="center">
             {tickerData.map((data, index) => 
               <StockCard key={index} profile={data.profile} quote={data.quote} clickHandler={clickHandler} />
             )}
           </Flex>
-      </WatchlistDiv>
-      <StatsDiv>
+      </StyledDiv>
+      <StyledDiv>
         <Heading>Watchlist Statistics</Heading>
-        <StatListDiv>
-          <Heading size="md">Best Performers</Heading>
-          {highest &&
-          <Box>
-            { highest.slice(0,3).map(data => 
-              
-              <div key={data.profile.ticker}>
-                <p>{data.profile.ticker}</p>
-                <p>{data.profile.name}</p>
-                <p>{data.quote.c}</p>
-                <Stat>
-                  <StatHelpText>
-                      <HStack height='50px'>
-                          <div>
-                              <StatArrow type={data.quote.d > 0 ? 'increase' : 'decrease'} />
-                              ${data.quote.d}
-                          </div>
-                          <div>
-                            <StatArrow type={data.quote.dp > 0 ? 'increase' : 'decrease'} />
-                            {data.quote.dp}%
-                          </div>
-                      </HStack>
-                  </StatHelpText>
-                </Stat>
-              </div>
-            )}
-          </Box>
-        }
-        </StatListDiv>
-        <StatListDiv>
-          <Heading size="md">Worst Performers</Heading>
+          <StyledDiv>
+            <Heading size="md" my="10px">Best Performers</Heading>
+            {highest &&
+            <Box>
+              { highest.slice(0,3).map((data, index) => 
+                <StockCardMini key={index} profile={data.profile} quote={data.quote} />
+              )}
+            </Box>
+          }
+          </StyledDiv>
+        <StyledDiv>
+          <Heading size="md" my="10px">Worst Performers</Heading>
           {lowest &&
           <Box>
-            { lowest.slice(0,3).map(data => 
-              <div key={data.profile.ticker}>
-                <p>{data.profile.ticker}</p>
-                <p>{data.profile.name}</p>
-                <p>{data.quote.c}</p>
-                <Stat>
-                  <StatHelpText>
-                      <HStack height='50px'>
-                          <div>
-                            <StatArrow type={data.quote.d > 0 ? 'increase' : 'decrease'} />
-                            ${data.quote.d}
-                          </div>
-                          <div>
-                            <StatArrow type={data.quote.dp > 0 ? 'increase' : 'decrease'} />
-                            {data.quote.dp}%
-                          </div>
-                      </HStack>
-                  </StatHelpText>
-                </Stat>
-              </div>
+            { lowest.slice(0,3).map((data, index) => 
+              <StockCardMini key={index} profile={data.profile} quote={data.quote} />
             )}
           </Box>
         }
-        </StatListDiv>
-        <StatListDiv>
-          <Heading size="md">Trading Flat</Heading>
+        </StyledDiv>
+        <StyledDiv>
+          <Heading size="md" my="10px">Trading Flat</Heading>
           {flat &&
           <Box>
-            { flat.slice(0,3).map(data =>   
-              <div key={data.profile.ticker}>
-                <p>{data.profile.ticker}</p>
-                <p>{data.profile.name}</p>
-                <p>{data.quote.c}</p>
-                <Stat>
-                  <StatHelpText>
-                      <HStack height='50px'>
-                          <div>
-                            <StatArrow type={data.quote.d > 0 ? 'increase' : 'decrease'} />
-                            ${data.quote.d}
-                          </div>
-                          <div>
-                            <StatArrow type={data.quote.dp > 0 ? 'increase' : 'decrease'} />
-                            {data.quote.dp}%
-                          </div>
-                      </HStack>
-                  </StatHelpText>
-                </Stat>
-              </div>
+            { flat.slice(0,3).map((data, index) =>   
+              <StockCardMini key={index} profile={data.profile} quote={data.quote} />
             )}
           </Box>
         }
-        </StatListDiv>
-      </StatsDiv>
+        </StyledDiv>
+      </StyledDiv>
     </div>
   )
 
