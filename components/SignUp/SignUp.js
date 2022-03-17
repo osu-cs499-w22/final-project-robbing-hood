@@ -159,7 +159,7 @@ function SignUp() {
               </Stack>
               <Stack pt={6}>
                 <Text align={"center"}>
-                  Already a user? <NextLink href='/users/signin' passHref><Link color={"blue.400"}>Login</Link></NextLink>
+                  Already a user? <NextLink href='/users/signin' passHref><Link color={"blue.400"}>Sign In</Link></NextLink>
                 </Text>
               </Stack>
             </Stack>

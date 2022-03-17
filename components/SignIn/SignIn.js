@@ -13,6 +13,7 @@ import {
   Text,
   useColorModeValue,
 } from "@chakra-ui/react";
+import NextLink from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useRouter } from "next/router";
 
@@ -89,6 +90,11 @@ function SignIn() {
                 >
                   Sign in
                 </Button>
+              </Stack>
+              <Stack pt={6}>
+                <Text align={"center"}>
+                  Don't have an account? <NextLink href='/users/signup' passHref><Link color={"blue.400"}>Sign Up Now</Link></NextLink>
+                </Text>
               </Stack>
             </Stack>
           </form>

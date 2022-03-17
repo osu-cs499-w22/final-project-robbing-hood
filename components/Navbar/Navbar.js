@@ -2,7 +2,7 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 import { MenuItems } from './MenuItems';
 import { NavButton } from './NavButton';
-import { Icon, Img } from '@chakra-ui/react';
+import { Icon, Flex } from '@chakra-ui/react';
 import { useSession, signIn, signOut } from "next-auth/react";
 import { IconContext } from 'react-icons';
 
@@ -158,9 +158,14 @@ function Navbar() {
 
     const router = useRouter();
 
-    const handleSignIn = (e) => {
+    const handleSignUp = (e) => {
         e.preventDefault();
         router.push("/users/signup");
+    }
+
+    const handleSignIn = (e) => {
+        e.preventDefault();
+        router.push("/users/signin");
     }
 
     const handleLogo = (e) => {
@@ -195,7 +200,10 @@ function Navbar() {
             {session ? 
                 <NavButton onClick={handleSignOut}>Sign Out</NavButton> 
                 :
-                <NavButton onClick={handleSignIn}>Sign Up</NavButton>
+                <Flex gap='12px'>
+                    <NavButton onClick={handleSignIn}>Sign In</NavButton>
+                    <NavButton onClick={handleSignUp}>Sign Up</NavButton>
+                </Flex>
             }
         </Nav>
     )
