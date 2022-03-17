@@ -52,7 +52,6 @@ function Watchlist({ userWatchlist, initTickerData }){
   async function refetchTickerData() {
     setTickerData([]);
     let newTickerData = [];
-    console.log("Mongo DB watchlist before data fetch", mongoDBWatchlist);
     for (const symbol of mongoDBWatchlist) {
       const result = await Promise.all([
         fetcher('/api/profilefetcher', symbol),
@@ -70,7 +69,7 @@ function Watchlist({ userWatchlist, initTickerData }){
   async function clickHandler(ticker) {
     setIsLoading(true);
     setMongoDBWatchlist([]);
-    const res = await fetch('/api/watchlistdelete', {
+    const res = await fetch('/api/users/watchlistdelete', {
       method: 'PATCH',
       body: JSON.stringify({
         ticker: ticker
@@ -213,6 +212,23 @@ export async function getServerSideProps(context) {
   };
 
   const userWatchlist = await db.collection('watchlists').findOne({ email: session.user.email }, options);
+
+  // If watchlist doesn't exist for user then create one for user
+  if (!userWatchlist) {
+    const result = await db.collection('watchlists').insertOne({
+      email: session.user.email,
+      watchlist: []
+    });
+
+    client.close();
+    return {
+      props: {
+        session: session,
+        userWatchlist: [],
+        initTickerData: []
+      }
+    }
+  }
 
   //Ticker data is the array that needs to be populated with api response data (populated below in the forEach)
   async function fetchAllTickerData() {

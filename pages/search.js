@@ -54,7 +54,6 @@ function Search({ userWatchlist }) {
 
     const { data: session } = useSession();
 
-    // https://stackoverflow.com/questions/61040790/userouter-withrouter-receive-undefined-on-query-in-first-render
     const router = useRouter();
     const query = router.query.q;
     const [ inputQuery, setInputQuery ] = useState(query || "");
@@ -67,7 +66,7 @@ function Search({ userWatchlist }) {
 
     const handleClick = async (ticker) => {
         setAddedStocks([]);
-        const res = await fetch('/api/watchlistinsert', {
+        const res = await fetch('/api/users/watchlistinsert', {
             method: 'POST',
             body: JSON.stringify({
                 ticker: ticker

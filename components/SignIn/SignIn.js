@@ -5,6 +5,8 @@ import {
   FormControl,
   FormLabel,
   Input,
+  InputGroup,
+  InputRightElement,
   Checkbox,
   Stack,
   Link,
@@ -13,6 +15,7 @@ import {
   Text,
   useColorModeValue,
 } from "@chakra-ui/react";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import NextLink from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useRouter } from "next/router";
@@ -23,6 +26,7 @@ function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -69,7 +73,19 @@ function SignIn() {
               </FormControl>
               <FormControl id="password">
                 <FormLabel>Password</FormLabel>
-                <Input type="password" value={password} onChange={e => setPassword(e.target.value)} />
+                <InputGroup>
+                  <Input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} />
+                  <InputRightElement h={"full"}>
+                    <Button
+                      variant={"ghost"}
+                      onClick={() =>
+                        setShowPassword((showPassword) => !showPassword)
+                      }
+                    >
+                      {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                    </Button>
+                  </InputRightElement>
+                </InputGroup>
               </FormControl>
               <Stack spacing={10}>
                 <Stack
@@ -78,7 +94,7 @@ function SignIn() {
                   justify={"space-between"}
                 >
                   <Checkbox>Remember me</Checkbox>
-                  <Link color={"blue.400"}>Forgot password?</Link>
+                  <NextLink href='/users/resetpassword' passHref><Link color={"blue.400"}>Forgot password?</Link></NextLink>
                 </Stack>
                 <Button
                   bg={"blue.400"}
