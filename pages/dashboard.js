@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useSession } from "next-auth/react";
+import React from 'react';
 import { useRouter } from 'next/router';
 import {
     Box,
@@ -16,18 +15,8 @@ const FormatPhoto = styled.img`
     height: 800px;
     object-fit: cover;`;
 
-const ContentDiv = styled.div`
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;`;
-
 export default function Dashboard() {
     const router = useRouter();
-  
-    const { data: session, status } = useSession();
-
-    console.log(session);
 
     const handleClick = (e) => {
         e.preventDefault()

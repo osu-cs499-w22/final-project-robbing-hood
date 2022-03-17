@@ -55,7 +55,6 @@ function SignUp() {
 
     // Validation
     if (!email || !email.includes('@')) {
-      // alert('Invalid email or password!');
       setIsEmailError(true);
     } else {
       setIsEmailError(false);
