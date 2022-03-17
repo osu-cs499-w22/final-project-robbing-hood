@@ -21,32 +21,9 @@ import {
 } from '@chakra-ui/react';
 import { CloseIcon } from '@chakra-ui/icons';
 import styled from '@emotion/styled';
-import useStockProfile from '../../hooks/useStockProfile';
-import { FaSearch } from 'react-icons/fa';
-import NextLink from 'next/link';
-import useStockQuote from '../../hooks/useStockQuote';
+import StockCard from '../../components/StockCard/StockCard';
 import { useSession, getSession } from "next-auth/react";
-import useSWR from 'swr';
 import { connectToDatabase } from '../../lib/db';
-
-/*
-REFACTOR TO USE SERVERSIDE RENDERING, FETCH TICKERS FROM DB AND THEN FETCH FROM API FOR EACH TICKER IN DB AND THEN SERVE ALL AT
-ONCE TO COMPONENT THRU PROPS, THEN HAVE FUNCTIONS TO REMOVE TICKERS AND THUS MODIFY DB AND LOCAL COPY OF TICKER INFO FOR CALCULATIONS
-*/
-
-//Have favorites list, containing individual cards of each favorited stock data
-//Individual list entry will contain Name, Ticker, Current Price, Up or Down colored arrow, indicating higher or lower than opening price
-//Also have "-" button, which will remove the entry from the stored list, and therefore will remove it from being rendered.
-
-//Then have second larger container, which contains four "performers" lists. Best, worst, flat, highest volume.
-//Contain individual entry cards again. 
-    //For all, have name, ticker, current price.
-    //For best, worst, flat, have same up or down arrow, but display percent increase or decrease from opening price.
-    //Specifically for highest volume, still show arrow, but instead of showing percent number, show volume number.
-
-    
-//For database, just need list of {ticker}. Can use ticker to grab all other information.
-
 
 const WatchlistDiv = styled.div`
   padding: 10px;
@@ -86,8 +63,6 @@ const initFetcher = (...args) => fetch(...args).then(res => res.json());
 
 function Watchlist({ userWatchlist, initTickerData }){
 
-  console.log("Init Ticker Data", initTickerData);
-
   const { data: session } = useSession();
 
   const [mongoDBWatchlist, setMongoDBWatchlist] = useState(userWatchlist || []);
@@ -95,9 +70,10 @@ function Watchlist({ userWatchlist, initTickerData }){
   const [isLoading, setIsLoading] = useState(false);
 
   async function refetchTickerData() {
+    console.log("Inside refetch func");
     setTickerData([]);
     let newTickerData = [];
-
+    console.log("Mongo DB watchlist before data fetch", mongoDBWatchlist);
     for (const symbol of mongoDBWatchlist) {
       const result = await Promise.all([
         fetcher('/api/profilefetcher', symbol),
@@ -128,12 +104,21 @@ function Watchlist({ userWatchlist, initTickerData }){
 
     const resBody = await res.json();
     console.log("resBody", resBody.value.watchlist);
+    console.log("Before set new watchlist");
     setMongoDBWatchlist(resBody.value.watchlist);
-    await refetchTickerData();
+    console.log("After set new watchlist");
     setIsLoading(false);
   }
 
-  console.log("Ticker Data", tickerData);
+  useEffect(() => {
+    async function refetchWhenWatchlistChanges() {
+      await refetchTickerData();
+    }
+
+    refetchWhenWatchlistChanges();
+  }, [mongoDBWatchlist]);
+
+  // console.log("Ticker Data", tickerData);
 
   //https://flaviocopes.com/how-to-sort-array-of-objects-by-property-javascript/
   const highest = [...tickerData].sort((x,y) => (x.quote.dp < y.quote.dp) ? 1 : -1);
@@ -188,29 +173,11 @@ function Watchlist({ userWatchlist, initTickerData }){
     <div>
       <WatchlistDiv>
         <Heading>My Watchlist</Heading>
-          <Box>
+          <Flex wrap="wrap" justify="space-evenly" align="center">
             {tickerData.map((data, index) => 
-              <div key={index}>
-                <p>{data.profile.ticker}</p>
-                <p>{data.profile.name}</p>
-                <p>{data.quote.c}</p>
-                <Stat>
-                  <StatHelpText>
-                      <HStack height='50px'>
-                          <div>
-                              <StatArrow type={data.quote.d > 0 ? 'increase' : 'decrease'} />
-                              ${data.quote.d}
-                          </div>
-                          <div>
-                            {data.quote.dp}%
-                          </div>
-                      </HStack>
-                  </StatHelpText>
-                </Stat>
-                <Button onClick={_ => clickHandler(data.profile.ticker)}>x</Button>
-              </div>
+              <StockCard key={index} profile={data.profile} quote={data.quote} clickHandler={clickHandler} />
             )}
-          </Box>
+          </Flex>
       </WatchlistDiv>
       <StatsDiv>
         <Heading>Watchlist Statistics</Heading>
@@ -231,7 +198,10 @@ function Watchlist({ userWatchlist, initTickerData }){
                               <StatArrow type={data.quote.d > 0 ? 'increase' : 'decrease'} />
                               ${data.quote.d}
                           </div>
-
+                          <div>
+                            <StatArrow type={data.quote.dp > 0 ? 'increase' : 'decrease'} />
+                            {data.quote.dp}%
+                          </div>
                       </HStack>
                   </StatHelpText>
                 </Stat>
@@ -253,10 +223,13 @@ function Watchlist({ userWatchlist, initTickerData }){
                   <StatHelpText>
                       <HStack height='50px'>
                           <div>
-                              <StatArrow type={data.quote.d > 0 ? 'increase' : 'decrease'} />
-                              ${data.quote.d}
+                            <StatArrow type={data.quote.d > 0 ? 'increase' : 'decrease'} />
+                            ${data.quote.d}
                           </div>
-
+                          <div>
+                            <StatArrow type={data.quote.dp > 0 ? 'increase' : 'decrease'} />
+                            {data.quote.dp}%
+                          </div>
                       </HStack>
                   </StatHelpText>
                 </Stat>
@@ -278,10 +251,13 @@ function Watchlist({ userWatchlist, initTickerData }){
                   <StatHelpText>
                       <HStack height='50px'>
                           <div>
-                              <StatArrow type={data.quote.d > 0 ? 'increase' : 'decrease'} />
-                              ${data.quote.d}
+                            <StatArrow type={data.quote.d > 0 ? 'increase' : 'decrease'} />
+                            ${data.quote.d}
                           </div>
-
+                          <div>
+                            <StatArrow type={data.quote.dp > 0 ? 'increase' : 'decrease'} />
+                            {data.quote.dp}%
+                          </div>
                       </HStack>
                   </StatHelpText>
                 </Stat>
