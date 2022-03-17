@@ -86,6 +86,8 @@ const initFetcher = (...args) => fetch(...args).then(res => res.json());
 
 function Watchlist({ userWatchlist, initTickerData }){
 
+  console.log("Init Ticker Data", initTickerData);
+
   const { data: session } = useSession();
 
   const [mongoDBWatchlist, setMongoDBWatchlist] = useState(userWatchlist || []);
@@ -131,34 +133,12 @@ function Watchlist({ userWatchlist, initTickerData }){
     setIsLoading(false);
   }
 
-
-  const loading = (data) => ((data.profile !== undefined)&&(data.quote !== undefined));
-
-  const isPopulated = tickerData.every(loading);
-
   console.log("Ticker Data", tickerData);
 
-  let highest = [];
-  let lowest = [];
-  let flat = [];
-
-  if(isPopulated){
-    let sortWith = [...tickerData];
-
-    //https://flaviocopes.com/how-to-sort-array-of-objects-by-property-javascript/
-    sortWith.sort((x,y) => (x.quote.dp < y.quote.dp) ? 1 : -1)
-    highest = [...sortWith];
-
-    sortWith.sort((x,y) => (x.quote.dp > y.quote.dp) ? 1 : -1)
-    lowest = [...sortWith];
-
-    sortWith.forEach(member => {
-      member.quote.dp = Math.abs(member.quote.dp)
-    })
-    sortWith.sort((x,y) => (x.quote.dp > y.quote.dp) ? 1 : -1)
-    flat = [...sortWith];
-
-  }
+  //https://flaviocopes.com/how-to-sort-array-of-objects-by-property-javascript/
+  const highest = [...tickerData].sort((x,y) => (x.quote.dp < y.quote.dp) ? 1 : -1);
+  const lowest = [...tickerData].sort((x,y) => (x.quote.dp > y.quote.dp) ? 1 : -1);
+  const flat = [...tickerData].sort((x,y) => (Math.abs(x.quote.dp) > Math.abs(y.quote.dp)) ? 1 : -1);
 
   if (typeof window === 'undefined') return null;
 
@@ -207,11 +187,9 @@ function Watchlist({ userWatchlist, initTickerData }){
 
     <div>
       <WatchlistDiv>
-        <h1>My Watchlist</h1>
-
+        <Heading>My Watchlist</Heading>
           <Box>
             {tickerData.map((data, index) => 
-                
               <div key={index}>
                 <p>{data.profile.ticker}</p>
                 <p>{data.profile.name}</p>
@@ -234,14 +212,11 @@ function Watchlist({ userWatchlist, initTickerData }){
             )}
           </Box>
       </WatchlistDiv>
-
       <StatsDiv>
-        <h1>Watchlist Statistics</h1>
-
+        <Heading>Watchlist Statistics</Heading>
         <StatListDiv>
-          <h1>Best Performers</h1>
-
-          {isPopulated &&
+          <Heading size="md">Best Performers</Heading>
+          {highest &&
           <Box>
             { highest.slice(0,3).map(data => 
               
@@ -249,8 +224,6 @@ function Watchlist({ userWatchlist, initTickerData }){
                 <p>{data.profile.ticker}</p>
                 <p>{data.profile.name}</p>
                 <p>{data.quote.c}</p>
-
-
                 <Stat>
                   <StatHelpText>
                       <HStack height='50px'>
@@ -267,25 +240,15 @@ function Watchlist({ userWatchlist, initTickerData }){
           </Box>
         }
         </StatListDiv>
-
-
-
-
-
-
         <StatListDiv>
-          <h1>Worst Performers</h1>
-
-          {isPopulated &&
+          <Heading size="md">Worst Performers</Heading>
+          {lowest &&
           <Box>
             { lowest.slice(0,3).map(data => 
-                
               <div key={data.profile.ticker}>
                 <p>{data.profile.ticker}</p>
                 <p>{data.profile.name}</p>
                 <p>{data.quote.c}</p>
-
-
                 <Stat>
                   <StatHelpText>
                       <HStack height='50px'>
@@ -302,25 +265,15 @@ function Watchlist({ userWatchlist, initTickerData }){
           </Box>
         }
         </StatListDiv>
-
-
-
-
-
-
         <StatListDiv>
-          <h1>Trading Flat</h1>
-
-          {isPopulated &&
+          <Heading size="md">Trading Flat</Heading>
+          {flat &&
           <Box>
-            { flat.slice(0,3).map(data => 
-                
+            { flat.slice(0,3).map(data =>   
               <div key={data.profile.ticker}>
                 <p>{data.profile.ticker}</p>
                 <p>{data.profile.name}</p>
                 <p>{data.quote.c}</p>
-
-
                 <Stat>
                   <StatHelpText>
                       <HStack height='50px'>
@@ -336,12 +289,8 @@ function Watchlist({ userWatchlist, initTickerData }){
             )}
           </Box>
         }
-
-
         </StatListDiv>
-
       </StatsDiv>
-
     </div>
   )
 
@@ -382,14 +331,10 @@ export async function getServerSideProps(context) {
           `${process.env.FINNHUB_API_BASE_URL}/quote?symbol=${symbol}&token=${process.env.FINNHUB_API_KEY_2}`
         )
       ]);
-
-      console.log("Promise all result", result);
+      
       const [profile, quote] = result;
-
       tickerData.push({profile, quote});
     }
-
-    console.log("In async");
     return tickerData;
   }
   
@@ -402,7 +347,7 @@ export async function getServerSideProps(context) {
     props: {
       session: session,
       userWatchlist: userWatchlist.watchlist,
-      initTickerData: initTickerData
+      initTickerData: JSON.parse(JSON.stringify(initTickerData))
     }
   }
 }
